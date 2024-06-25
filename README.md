@@ -21,7 +21,7 @@ The generated ranking (resp. importance) is saved fo each graph in data/syntheti
 ### compute_features.py 
 The script computes all features for a test graph (with real target values). 
 To run the script, give in the list the graph name that you want to compute its features, or all graphs in a directory. 
-The computed features for the random subgraphs of each graph are saved in data/synthetic/graph_name.csv
+The computed features of each graph are saved in data/synthetic/graph_name.csv
 
 ### feature_learning_gnn.py 
 It implements the FR-GNN model, it is the feature learning graph classification model that learns the ranking of graphs. 
@@ -29,7 +29,7 @@ Names of training graphs are stored in the file synthetic.train, the learned mod
 
 ### test_model.py 
 The script predicts for a query graph G the ranking of its features. 
-Query graphs' (test graphs') name are stored in data/synthetic.train 
+Query graphs' (test graphs') name are stored in data/synthetic.train .
 The predicted ranking and importance are written in reports/rank_predicted and reports/importance_predicted
 
 ### train_nc_gnn.py 
