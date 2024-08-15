@@ -1,7 +1,6 @@
-Code and data accompanying the paper
+Code and data accompanying the paper:
 
-Alkhoury et al.: 
-Improving Graph Neural Networks through Feature Learning.
+Improving Graph Neural Networks through Feature Importance Learning.
 
 ## Repository Structure
 

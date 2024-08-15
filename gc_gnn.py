@@ -91,46 +91,64 @@ Y_val = []
 data_dir = "./datasets"
 os.makedirs(data_dir, exist_ok=True)
 dataPath ='data'
-dataset_length = 120
-train_length = int(dataset_length * (10) / (12))
-X ,Y = ReadData.readData('synthetic' ,'train' ,dataPath)
+dataset_length = 100
+train_length = int(dataset_length * (80) / (100))
+X ,Y = ReadData.readData('graph_classification' ,'train' ,dataPath)
 offset = 0
 Y = Y[offset:offset +dataset_length]
 X = X[offset:offset +dataset_length]
-Y = np.reshape(Y ,(len(Y) ,26 ,1))
+Y = Y[:-1]
+#Y = np.reshape(Y ,(len(Y) ,26 ,1))
 batch = 10
-y_all = []
-y_all_test = []
+#y_all = []
+#y_all_test = []
 
-for y in Y:
-    tmp = []
-    for f in y:
-        tmp.append(f)
-    y_all.append(tmp)
+#for y in Y:
+#    tmp = []
+#    for f in y:
+#        tmp.append(f)
+#    y_all.append(tmp)
+
+def getRanking(graph):
+    with open('reports/graphs_rank_predicted.csv') as input_file:
+        for line in input_file:
+            columns = line.split(',')
+            if (columns[0] == graph):
+                ranking = [int(columns[c]) for c in range(1,27)]
+                return ranking
+
 
 def add_attributes(dataset):
+
     data_list = []
     for i, data in enumerate(dataset):
         data.y = y_all[i]
+        #ranking = getRanking(data)
+
         x_train = np.ones((data.num_nodes ,26) ,dtype=np.float32)
         x_train = np.array(x_train)
         x_train = torch.from_numpy(x_train)
         data.x = x_train
         data_list.append(data)
+
     return data_list
 
-y_all = np.array(y_all ,dtype=np.float32)
+y_all = np.array(Y ,dtype=np.float32)
 y_all = torch.Tensor(y_all)
 y_all = y_all.type(torch.FloatTensor)
 dataset_list_train = []
 dataset_list_test = []
 
-graphs_list = [torch_geometric.utils.from_networkx(pickle.load(open('Synthetic/' + x,'rb'))) for x in X]
+#x_train = np.zeros((dataset_length,))
+
 
 X_train = X[:train_length]
 Y_train = Y[:train_length]
 X_test = X[train_length:]
 Y_test = Y[train_length:]
+
+graphs_list = [torch_geometric.utils.from_networkx(pickle.load(open('Synthetic/' + x,'rb'))) for x in X]
+
 
 graphs_list = graphs_list[:dataset_length]
 dataset_list = add_attributes(graphs_list)

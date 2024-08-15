@@ -32,6 +32,8 @@ def readData(dataset, type, path):
 		return readDataUnsupervised(type, path)
 	if dataset == 'synthetic':
 			return readDataSynthetic(type, path)
+	if dataset == 'graph_classification':
+		return readDataGraphClassification(type, path)
 	if dataset == 'USA':
 		return readDataUSA(type, path)
 	if dataset == 'house_600_12_0.012_4' or dataset == 'house_20_18_1_2' or dataset == 'house_60_5_1_2':
@@ -70,6 +72,22 @@ def readDataSyntheticAll(dataset, type, path="data/synthetic/"):
 def readDataSynthetic(type, path="data/synthetic/"):
 	if (type == 'train'):
 		filename = os.path.join(path, 'synthetic', 'synthetic' + ".train")
+	#if (type == 'test'):
+	#	filename = os.path.join(path, "pattern", "pattern.test")
+
+	X = np.loadtxt(filename, delimiter=',', dtype=str)
+	Y = X[:, 3:]
+	X = X[:, 0]
+	Y = np.array(Y)
+	#print(Y)
+	Y = Y.astype(np.float32)
+
+	return X,Y
+
+
+def readDataGraphClassification(type, path="data/synthetic/"):
+	if (type == 'train'):
+		filename = os.path.join(path, 'synthetic', 'training_graphs' + ".train")
 	#if (type == 'test'):
 	#	filename = os.path.join(path, "pattern", "pattern.test")
 
