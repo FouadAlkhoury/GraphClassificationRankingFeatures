@@ -1,6 +1,7 @@
 Code and data accompanying the paper:
 
-Improving Graph Neural Networks through Feature Importance Learning.
+Improving Graph Neural Networks through Feature Importance Learning. 
+Authors: Fouad Alkhoury, Tamás Horváth, Christian Bauckhage, and Stefan Wrobel.
 
 ## Repository Structure
 
