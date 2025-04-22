@@ -2,11 +2,11 @@
 # give in the list below the graph name that you want to compute its features, or all graphs in a directory
 # computed features for the random subgraphs of each graph are saved in data/synthetic/graph_name.csv
 
-datasets = ['Erdos_150_250_house_20_50_611.pickle']
+datasets = ['Erdos_700_7500_grid_40_401_480.pickle']
+#datasets = [f for f in os.listdir('Synthetic/') if 'Erdos' in f]
+
+
 import os
-datasets = [f for f in os.listdir('Synthetic/') if '24' in f]
-
-
 import collections
 import numpy as np
 import torch
@@ -337,7 +337,7 @@ def compute_features(dataset):
 
 data_dir = "./datasets"
 os.makedirs(data_dir, exist_ok=True)
-datasets = []
+datasets = ['Erdos_700_7500_grid_40_401_480.pickle']
 for d in datasets:
     if (d == 'Cora' or d == 'CiteSeer' or d == 'PubMed'):
         dataset = Planetoid(root= data_dir, name=d)
@@ -374,4 +374,3 @@ for d in datasets:
 
 for dataset in datasets:
    compute_features(dataset)
-
