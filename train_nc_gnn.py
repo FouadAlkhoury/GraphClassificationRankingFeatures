@@ -2,7 +2,11 @@
 # the feature vector for each node consists of the first k fetures according to the predicted ranking from reports/rank_predicted.csv
 # results are saved in k_results
 
-graph_name_list = [f for f in os.listdir('Synthetic/') if 'Barabasi_25000_' in f]
+graph_name_list = [f for f in os.listdir('Synthetic/') if
+                   'Erdos_500_' in f or 'Erdos_1000_' in f or 'Erdos_2500_' in f or 'Barabasi_150_' in f or 'Barabasi_1000_' in f or 'Barabasi_1500_' in f]
+
+graph_name_list = ['MUTAG']
+# Cora
 
 import numpy as np
 import torch
@@ -30,7 +34,7 @@ from util import writeToReport
 from sklearn.feature_selection import mutual_info_classif
 from sklearn.tree import export_text
 from torch_geometric.datasets import Amazon, CitationFull, HeterophilousGraphDataset
-from torch_geometric.datasets import GNNBenchmarkDataset, Airports, AttributedGraphDataset
+from torch_geometric.datasets import GNNBenchmarkDataset, Airports, AttributedGraphDataset, Entities
 import datetime
 import pickle
 
@@ -51,7 +55,8 @@ class GCN(torch.nn.Module):
         output = self.conv3(x, edge_index)
         return output
 
-def train_node_classifier(model, graph, X, optimizer, criterion, n_epochs=1000):
+
+def train_node_classifier(model, graph, X, optimizer, criterion, n_epochs=10):
     for epoch in range(1, n_epochs + 1):
         model.train()
         optimizer.zero_grad()
@@ -85,6 +90,7 @@ optimal_k = 6
 acc_list = []
 acc_all = []
 
+
 def list_to_str(list):
     str_list = ''
     for l in list:
@@ -92,26 +98,31 @@ def list_to_str(list):
         str_list += str(l) + ','
     return str_list
 
+
 def getRanking(graph):
-    with open('reports/rank_predicted.csv') as input_file:
+    with open('data/synthetic/ranking_synthetic_l_10_.csv') as input_file:
         for line in input_file:
             columns = line.split(',')
-            if (columns[0] == graph):
-                ranking = [int(columns[c]) for c in range(1,27)]
+            if (graph in columns[0]):
+                ranking = [int(columns[c]) for c in range(1, 27)]
                 return ranking
-
 
 
 for graph_id, graph_name in enumerate(graph_name_list):
     acc_list = []
     # sample k features
+    print(graph_name)
     ranking = getRanking(graph_name)
-    for iteration in range(1, 3):
+    print(ranking)
+
+    for iteration in range(1, 2):
         numbers = set()
         while (len(numbers) < optimal_k):
-            numbers.add(np.random.randint(0, 26))
+            numbers.add(np.random.randint(0, 98))
         numbers = list(numbers)
-
+        if (graph_name == 'MUTAG'):
+            classes_count = 2
+            dataset = Entities(root=data_dir, name=graph_name)
         if (graph_name == 'Cora'):
             classes_count = 7
             dataset = Planetoid(root=data_dir, name=graph_name)
@@ -166,22 +177,22 @@ for graph_id, graph_name in enumerate(graph_name_list):
         if ('cycle' in graph_name):
             classes_count = 2
 
-        # data = dataset[0]  #for real-world graphs
-        data = torch_geometric.utils.from_networkx(pickle.load(open('Synthetic/' + graph_name, 'rb'))) # for synthetic graphs
-        print(data)
+        data = dataset[0]  # for real-world graphs
+        # data = torch_geometric.utils.from_networkx(pickle.load(open('Synthetic/' + graph_name, 'rb'))) # for synthetic graphs
+        # print(data)
         graph = to_networkx(data, to_undirected=True)
         metrics_count = 26
         path_ranking = 'reports/'
-        ranking = numbers
+        # ranking = numbers
 
         report_file_k = 'reports/k_results_real/' + graph_name + '_k.csv'
         writeToReport(report_file_k, 'k , Test Accuracy')
         report_file_k_metrics = 'reports/k_results_metrics/' + graph_name + '_k.csv'
         writeToReport(report_file_k, 'k , Test Accuracy')
         report_file_optimal_k = 'reports/results_optimal_k.csv'
-        writeToReport(report_file_optimal_k, 'Graph, k , Avg Test Accuracy, Std Test Accuracy, k features')
+        # writeToReport(report_file_optimal_k, 'Graph, k , Avg Test Accuracy, Std Test Accuracy, k features')
         report_file = 'reports/k_results/' + graph_name + '.txt'
-        writeToReport(report_file, 'depth = ' + str(depth) + ' , trees count = ' + str(trees_count) + ' \n')
+        # writeToReport(report_file, 'depth = ' + str(depth) + ' , trees count = ' + str(trees_count) + ' \n')
         for k in range(1, 27):
             if (k == 6):
                 X_train = []
@@ -192,6 +203,8 @@ for graph_id, graph_name in enumerate(graph_name_list):
                 Y_val = []
 
                 filename = os.path.join("data/synthetic/", graph_name + ".csv")
+                # filename = os.path.join("reports/features_synthetic/", graph_name + ".csv")
+
                 X = np.loadtxt(filename, delimiter=',', dtype=str)
                 if ('Target' in X[0][-1]):
 
@@ -210,9 +223,12 @@ for graph_id, graph_name in enumerate(graph_name_list):
 
                 X_random = X_metrics[:, [25]]
                 k_ranking = ranking[:k]
+                print(k_ranking)
+                # k_ranking = [25,16,21,6,4,20]
                 X_metrics = X_metrics[:, k_ranking]
                 split = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
                 graph = split(data)
+                print(graph)
 
                 train_list = []
                 test_list = []
@@ -263,6 +279,7 @@ for graph_id, graph_name in enumerate(graph_name_list):
 
                         ## gcn metrics
 
+                        hidden_layers = 128
                         start_gcn_metrics = datetime.datetime.now()
                         X = torch.from_numpy(X_metrics)
                         gcn = GCN()
@@ -277,8 +294,8 @@ for graph_id, graph_name in enumerate(graph_name_list):
                         gcn_time_metrics = datetime.timedelta()
                         gcn_time_metrics = (end_gcn_metrics - start_gcn_metrics)
 
-                        writeToReport(report_file_optimal_k, graph_name + ',' + str(optimal_k) + ',' + str(
-                            np.round(test_acc_metrics, 3)) + ',' + str(0) + ',' + list_to_str(numbers))
+                        writeToReport(report_file_optimal_k, graph_name + ',' + str(
+                            np.round(test_acc_metrics, 3)))
                         writeToReport(report_file, 'GCN on metrics: ' + str(np.round(test_acc_metrics, 3)) + '\n')
                         writeToReport(report_file, 'Time: ' + str(gcn_time_metrics) + '\n')
                         writeToReport(report_file_k, str(k) + ',' + str(np.round(test_acc_metrics, 3)))
@@ -288,16 +305,11 @@ for graph_id, graph_name in enumerate(graph_name_list):
                         loss_values = []
                         val_accuracy = []
 
-
-        
-        
-
-
-    writeToReport(report_file_optimal_k, graph_name + ',' + str(optimal_k) + ',' + str(np.mean(acc_list)) + ',' + str(
-        np.std(acc_list)) + ',' + list_to_str(numbers))
-    writeToReport(report_file_optimal_k,
-                  'avg Large,' + str(optimal_k) + ',' + str(np.mean(acc_all)) + ',' + str(np.std(acc_all)) + ',')
-    vanilla_train = True
+    # writeToReport(report_file_optimal_k, graph_name + ',' + str(optimal_k) + ',' + str(np.mean(acc_list)) + ',' + str(
+    #    np.std(acc_list)) + ',' + list_to_str(numbers))
+    # writeToReport(report_file_optimal_k,
+    #              'avg Large,' + str(optimal_k) + ',' + str(np.mean(acc_all)) + ',' + str(np.std(acc_all)) + ',')
+    vanilla_train = False
     if (vanilla_train):
         ## gcn vanilla
         X = X_vanilla
@@ -309,7 +321,7 @@ for graph_id, graph_name in enumerate(graph_name_list):
         test_acc_vanilla = eval_node_classifier(gcn, graph, X, graph.test_mask)
         print(f'GCN on vanilla, Test Acc: {test_acc_vanilla:.3f}')
         writeToReport(report_file, 'GCN on vanilla: ' + str(np.round(test_acc_vanilla, 3)) + '\n  \n')
-        writeToReport(report_file_k_metrics, 'vanilla' + ',' + str(np.round(test_acc_vanilla, 3)))
+        writeToReport(report_file_optimal_k, 'vanilla' + ',' + str(np.round(test_acc_vanilla, 3)))
 
     '''
       ## gcn random
@@ -319,13 +331,12 @@ for graph_id, graph_name in enumerate(graph_name_list):
       optimizer_gcn = torch.optim.Adam(gcn.parameters(), lr=0.001, weight_decay=5e-4)
       criterion = nn.CrossEntropyLoss()
       gcn = train_node_classifier(gcn, graph,X, optimizer_gcn, criterion)
-  
+
       test_acc_random = eval_node_classifier(gcn, graph,X, graph.test_mask)
-  
+
       print(f'GCN on random, Test Acc: {test_acc_random:.3f}')
-  
-  
+
+
       writeToReport(report_file,'GCN on random: '+str(np.round(test_acc_random,3))+ '\n  \n')
       writeToReport(report_file_k_metrics, 'random' + ',' +str(np.round(test_acc_random,3)))
     '''
-
