@@ -1,9 +1,6 @@
-# for a query graph G, this code predicts the ranking of its features.
-# query graphs names are stored in synthetic.train
-# predicted ranking and importance are written in reports/rank_predicted and reports/importance_predicted
 import numpy as np
 import torch
-from torch_geometric.nn import GCNConv
+from torch_geometric.nn import GCNConv, GATConv, SAGEConv
 from torch_geometric.nn import global_mean_pool
 import torch.nn as nn
 import torch.nn.functional as F
@@ -21,11 +18,11 @@ import datetime
 
 features_count = 26
 
-class GCN(torch.nn.Module):
+class GraphSAGE(torch.nn.Module):
     def __init__(self, hidden_channels):
-        super(GCN, self).__init__()
-        self.conv1 = GCNConv(features_count, hidden_channels)
-        self.conv2 = GCNConv(hidden_channels, hidden_channels)
+        super(GraphSAGE, self).__init__()
+        self.conv1 = SAGEConv(features_count, hidden_channels)
+        self.conv2 = SAGEConv(hidden_channels, hidden_channels)
         self.lin1 = nn.Linear(64 ,features_count)
 
     def forward(self, x, edge_index ,batch):
@@ -53,8 +50,8 @@ Y_train = []
 X_test= []
 Y_test = []
 dataPath='data'
-dataset_length = 3
-train_length = int(dataset_length * (1) / (3))
+dataset_length = 48
+train_length = int(dataset_length * (1) / (48))
 X = ReadData.readData('test','test',dataPath)
 print(X)
 #print(Y)
@@ -87,9 +84,9 @@ def add_attributes(dataset):
 
     return data_list
 
-model = GCN(64)
-model.load_state_dict(torch.load('Synthetic/model.pth'))
-#model=torch.load('model/model_fr_graph.pth')#
+model = GraphSAGE(64)
+#model.load_state_dict(torch.load('Synthetic/model.pth'))
+model=torch.load('model/model_graphsage.pth')#
 
 X_train = X[:train_length]
 #Y_train = Y[:train_length]
@@ -133,9 +130,9 @@ y_test_list = []
 
 
 time = datetime.datetime.now()
-ranking_prediction_file = 'reports/rank_pred_'+str(time)+'.csv'
-ranking_test_file = 'reports/rank_test_'+str(time)+'.csv'
-importance_prediction_file = 'reports/importance_pred_'+str(time)+'.csv'
+ranking_prediction_file = 'reports/rank_pred_graphsage_'+str(time)+'.csv'
+ranking_test_file = 'reports/rank_test_graphsage_'+str(time)+'.csv'
+importance_prediction_file = 'reports/importance_pred_graphsage_'+str(time)+'.csv'
 testing_time_file = 'reports/testing_time.csv'
 
 writeToReport(ranking_prediction_file,'graph, top 5 similarity, ranking')
