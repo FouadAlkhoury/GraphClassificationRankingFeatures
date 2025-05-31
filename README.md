@@ -1,6 +1,5 @@
-Code and data accompanying the paper:
-
-Improving Graph Neural Networks through Feature Importance Learning. 
+Code and datasets associated with the manuscript:
+Learning to Rank Features to Enhance Graph Neural Networks for Graph Classification.
 Authors: Fouad Alkhoury, Tamás Horváth, Christian Bauckhage, and Stefan Wrobel.
 
 ## Repository Structure
