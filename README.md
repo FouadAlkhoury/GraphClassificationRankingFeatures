@@ -36,7 +36,7 @@ Using local explainer, this script computes the feature ranking vectors for the 
 ### gc.py
 This script runs the graph classification model on three GNN architectures: GCN, GAT, and GraphSAGE.
 
-The folder 'Synthetic' contains some generated synthetic graphs, we omit uploading the whole datasets as it contain 24x600 synthetic graphs due to the large space needed. 
+The folders ba_s1, er_s2, ws_s3, and pl_s4 contain the generated synthetic graphs for four graph models and learning problems.
 The results, reports, times are exported to 'reports' folder. 
 
 
