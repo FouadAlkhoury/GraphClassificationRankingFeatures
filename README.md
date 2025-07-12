@@ -9,7 +9,7 @@ This folder contains the scripts used to run the experiments, we explain in turn
 generate synthetic graphs for the six defined learning problems explained in Section 4.1 of the paper.
 Each dataset consists of 600 graphs generated using four graph models:
 Erdos (ER), Barabasi (BA), Watts-Strogatz (WS), Power-Law (PL).
-Each dataset in this script has the name: X_Y where X denotes the base graph model and Y refers to the different learnign problems (s1...s6)
+Each dataset in this script has the name: X_Y where X denotes the base graph model and Y refers to the different learning problems (s1...s6)
 The generated graphs are saved under Synthetic/dataset_name/
 
 ### split_graphs.py
