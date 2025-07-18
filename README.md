@@ -33,6 +33,9 @@ The Support Vector Machine version of computing the feature ranking vectors for 
 ### train_nn_importance.py
 Using local explainer, this script computes the feature ranking vectors for the training graphs in the set D_FR.
 
+### feature_learning_gc_gnn
+The scripts trains the feature ranking (FR-GNN) model. The learned model is saved under model/model_dataset.pth
+
 ### gc.py
 This script runs the graph classification model on three GNN architectures: GCN, GAT, and GraphSAGE.
 
