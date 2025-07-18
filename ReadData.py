@@ -5,7 +5,7 @@ import sys
 import os
 from sklearn.datasets import load_svmlight_file
 
-def readData(dataset, type, path):
+def readData(type,dataset, path):
     if dataset == 'Cora':
         return readDataCora(type, path)
     if dataset == 'cora_all':
@@ -28,8 +28,8 @@ def readData(dataset, type, path):
         return readDataPattern(type, path)
     if dataset == 'pattern_all':
         return readDataPatternAll(type, path)
-    if dataset == 'synthetic':
-        return readDataSynthetic(type, path)
+    if '_s' in dataset:
+        return readDataSynthetic(type, dataset, path)
     if dataset == 'real':
         return readDataReal(type, path)
     if (dataset == 'MUTAG' or dataset == 'PROTEINS' or dataset == 'IMDB-BINARY' or dataset == 'ENZYMES'):
@@ -68,14 +68,14 @@ def readDataSyntheticAll(dataset, type, path="data/synthetic/"):
 
     return X,Y
 
-def readDataSynthetic(type, path="data/synthetic/"):
+def readDataSynthetic(type, dataset, path="data/"):
     if (type == 'train'):
-        filename = os.path.join(path, 'synthetic', 'synthetic' + ".train")
+        filename = os.path.join(path, 'real/split', 'importance_' + dataset + ".csv")
     #if (type == 'test'):
     #   filename = os.path.join(path, "pattern", "pattern.test")
 
     X = np.loadtxt(filename, delimiter=',', dtype=str)
-    Y = X[:, 3:]
+    Y = X[:, 1:-1]
     X = X[:, 0]
     Y = np.array(Y)
     #print(Y)
@@ -84,14 +84,14 @@ def readDataSynthetic(type, path="data/synthetic/"):
     return X,Y
 
 
-def readDataReal(type, path="data/real/"):
+def readDataReal(type, dataset, path="data/real/split/"):
     if (type == 'train'):
-        filename = os.path.join(path, 'real', 'importance_real' + ".csv")
+        filename = os.path.join("data/real/split/",  'importance_'+dataset + ".csv")
     #if (type == 'test'):
     #   filename = os.path.join(path, "pattern", "pattern.test")
 
     X = np.loadtxt(filename, delimiter=',', dtype=str)
-    Y = X[:, 1:-1]
+    Y = X[:, 1:]
     X = X[:, 0]
     Y = np.array(Y)
     #print(Y)
@@ -262,3 +262,5 @@ def readDataPredictions(type, path="data/"):
     X = np.loadtxt(filename, delimiter=',', dtype=np.float64)
     Y = X[:, -1]
     X = X[:, 0:-1]
+
+    return X, Y
